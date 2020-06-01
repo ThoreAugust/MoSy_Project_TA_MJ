@@ -1,11 +1,10 @@
 {
   "expo": {
-    "name": "HelloWorld",
+    "name": "GoodNews-App",
     "slug": "GoodNews-App",
     "platforms": [
       "ios",
-      "android",
-      "web"
+      "android"
     ],
     "version": "1.0.0",
     "orientation": "portrait",
