@@ -4,7 +4,7 @@ import {View, Image,Text, TouchableOpacity,StyleSheet} from 'react-native';
 export default FeedTile = props => {
     return(
         <View style={styles.itemContainer}>
-        <TouchableOpacity onPress={props.toArticle}>
+        <TouchableOpacity onPress={()=> props.toArticle(props.articleUrl)}>
             <Text style={styles.title}>{props.title}</Text>
             <Text style={styles.description}>{props.description}</Text>
             <Image source={{uri:props.image,}} style={styles.articleImage} />
