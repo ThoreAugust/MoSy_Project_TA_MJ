@@ -1,8 +1,6 @@
-import React, {useState, useEffect, useContext} from "react";
-import {Alert, View, FlatList, Button, StyleSheet} from 'react-native';
-import {AppLoading} from 'expo';
+import React, {useContext} from "react";
+import {View, FlatList} from 'react-native';
 import FeedTile from "../components/FeedTile";
-import {ARTICLES} from "../data/DummyData";
 import {NewsContext} from '../data/NewsContext';
 
 export default MainScreen = ({navigation}) => {
