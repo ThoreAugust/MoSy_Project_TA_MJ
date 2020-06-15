@@ -1,47 +1,17 @@
 import React from 'react';
 import {View, Image,Text, TouchableOpacity,StyleSheet} from 'react-native';
+import {getFeedTheme} from '../constants/Themes';
 
 export default FeedTile = props => {
+    const theme = getFeedTheme(props.theme);
     return(
-        <View style={styles.itemContainer}>
+        <View style={theme.itemContainer}>
         <TouchableOpacity onPress={()=> props.toArticle(props.articleUrl, props.title)}>
-            <Text style={styles.title}>{props.title}</Text>
-            <Text style={styles.description}>{props.description}</Text>
-            <Image source={{uri:props.image,}} style={styles.articleImage} />
-            <Text style={styles.src}>{props.source}</Text>
+            <Text style={theme.title}>{props.title}</Text>
+            <Text style={theme.description}>{props.description}</Text>
+            <Image source={{uri:props.image,}} style={theme.articleImage} />
+            <Text style={theme.src}>{props.source}</Text>
         </TouchableOpacity>
        </View>
     );
 }
-
-const styles = StyleSheet.create({
-    itemContainer : {
-        flex:1,
-        marginTop: 5,
-        padding: 5,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "white",
-        borderRadius: 10,
-        shadowColor: "black",
-        shadowOpacity: 0.25,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 10,
-        elevation: 10,
-    },
-    articleImage: {
-        width: 300,
-        height: 150,
-    },
-    src:{
-        fontSize: 10,
-        marginRight: 20,
-    },
-    title:{
-        fontWeight: "bold",
-        fontSize: 16,
-    },
-    description: {
-        fontSize: 12,
-    }
-});

@@ -1,17 +1,22 @@
 import React, {useContext, useState, useEffect} from "react";
-import {View, FlatList, Alert} from 'react-native';
+import {View, FlatList, Alert, StyleSheet} from 'react-native';
 import {Header, Button} from 'react-native-elements';
 import FeedTile from "../components/FeedTile";
 import Menu from '../components/Menu';
 import SideMenu from 'react-native-side-menu';
 import ArticleScreen from './ArticleScreen';
 import {Ionicons} from '@expo/vector-icons';
+import {getFeedTheme, getHeaderTheme} from '../constants/Themes';
 
 export default MainScreen = ({navigation}) => {
     const [articles, setArticles] = useState([]);
     const [searchText, setSearchText] = useState("hamburg");
     const [isArticle, setIsArticle] = useState({visible: false, url: "", title: ""});
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [themeType, setThemeType] = useState('colorfull');
+
+    const feedTheme = getFeedTheme(themeType);
+    const headerTheme = getHeaderTheme(themeType);
     
     const getNews = async () => {
         let articleId = 0;
@@ -89,25 +94,32 @@ export default MainScreen = ({navigation}) => {
     const toggleMenu = () =>{
         setIsMenuOpen(isOpen => !isOpen);
     }
+    
+    const setTheme = type => {
+        console.log(type);
+        setThemeType(type);
+    };
 
-    const menu = <Menu />;
+    const menu = <Menu theme={themeType} changeTheme={setTheme}/>;
         return (
             <SideMenu menu={menu} disableGestures={true} isOpen={isMenuOpen}>
                 <Header 
-                    leftComponent={<Button type="clear" icon={ <Ionicons name="md-menu" size={32} color="white" />} onPress={toggleMenu}/>}
-                    centerComponent={{ text: 'Good News App', style: { color: '#fff' } }}
-                    rightComponent={<Button type="clear" icon={ <Ionicons name="md-search" size={32} color="white" />} />}
+                    leftComponent={<Button type="clear" icon={ <Ionicons name="md-menu" size={32} color={headerTheme.headerButtons.color} />} onPress={toggleMenu}/>}
+                    centerComponent={{ text: 'Good News App', style: headerTheme.headerText }}
+                    rightComponent={<Button type="clear" icon={ <Ionicons name="md-search" size={32} color={headerTheme.headerButtons.color} />} />}
+                    containerStyle={headerTheme.header}
                 />
-                <View style={{flex: 1, alignItems: "center", justifyContent:"center", backgroundColor: '#ffffff'}}>  
+                <View style={feedTheme.feedBackground}>  
                     <FlatList 
                         data={articles}
-                        renderItem={(itemData ) => {return <FeedTile title={itemData.item.title} description={itemData.item.description} image={itemData.item.urlToImage} source={itemData.item.source.name} toArticle={toArticle} articleUrl={itemData.item.url} />}}
+                        renderItem={(itemData ) => {return <FeedTile title={itemData.item.title} description={itemData.item.description} image={itemData.item.urlToImage} source={itemData.item.source.name} toArticle={toArticle} articleUrl={itemData.item.url} theme={themeType} />}}
                         keyExtractor={(item, index) => item.id}
                         style={{width:'100%'}}
-                        contentContainerStyle={{alignItems: "stretch", padding:20}}
+                        contentContainerStyle={{alignItems: "stretch"}}
                         />     
-                    <ArticleScreen visible={isArticle.visible} url={isArticle.url} title={isArticle.title} goBack={goBack}/>    
+                    <ArticleScreen visible={isArticle.visible} url={isArticle.url} title={isArticle.title} goBack={goBack} theme={themeType} />    
                 </View>
             </SideMenu>
         );
 };
+

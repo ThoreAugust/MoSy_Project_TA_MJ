@@ -1,16 +1,19 @@
 import React from 'react';
 import {Modal} from 'react-native';
-import {Header, Button} from 'react-native-elements';
+import {Header, Button, ThemeConsumer} from 'react-native-elements';
 import {WebView} from 'react-native-webview';
 import {Ionicons} from '@expo/vector-icons';
+import { getHeaderTheme } from '../constants/Themes';
 
 export default ArticleScreen = props => {
+    const theme = getHeaderTheme(props.theme);
     
     return (
         <Modal visible = {props.visible}>
             <Header 
-                leftComponent={<Button type="clear" icon={ <Ionicons name="md-arrow-back" size={32} color="white" />} onPress={props.goBack}/>}
-                centerComponent={{ text: props.title, style: { color: '#fff' } }}
+                leftComponent={<Button type="clear" icon={ <Ionicons name="md-arrow-back" size={32} color={theme.headerButtons.color} />} onPress={props.goBack}/>}
+                centerComponent={{ text: props.title, style: theme.headerText }}
+                containerStyle={theme.header}
             />
             <WebView 
                 source={{uri: props.url}}
