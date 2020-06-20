@@ -30,12 +30,15 @@ export const getSidebarTheme = themeName => {
             backgroundColor: lightTheme.feedBG
         },
         sidebarDrawer: {
-                flex:1,
-                alignItems: 'center',
-                backgroundColor: lightTheme.sidebarBG,
-                borderBottomRightRadius: 30},
+            flex:1,
+            alignItems: 'center',
+            backgroundColor: lightTheme.sidebarBG,
+            borderBottomRightRadius: 30
+        },
         sidebarText : {
             color: lightTheme.sidebarText,
+            fontFamily: 'YesevaOne',
+            fontSize: 25,
             padding: 10,
             textAlign: "center"
         },
@@ -43,7 +46,7 @@ export const getSidebarTheme = themeName => {
             color: lightTheme.sidebarText,
             height: 2,
             width: 150,
-            marginVertical: 20
+            marginVertical: 5
         }
     }   
     if(themeName === 'dark') return{
@@ -60,6 +63,8 @@ export const getSidebarTheme = themeName => {
             },
         sidebarText : {
             color: darkTheme.sidebarText,
+            fontFamily: 'YesevaOne',
+            fontSize: 25,
             padding: 10,
             textAlign: "center"
         },
@@ -67,7 +72,7 @@ export const getSidebarTheme = themeName => {
             color: darkTheme.sidebarText,
             height: 2,
             width: 150,
-            marginVertical: 20
+            marginVertical: 5
         }
     }
     return{
@@ -82,6 +87,8 @@ export const getSidebarTheme = themeName => {
                 borderBottomRightRadius: 30},
         sidebarText : {
             color: colorfullTheme.sidebarText,
+            fontFamily: 'YesevaOne',
+            fontSize: 25,
             padding: 10,
             textAlign: "center"
         },
@@ -89,7 +96,7 @@ export const getSidebarTheme = themeName => {
             color: colorfullTheme.sidebarText,
             height: 2,
             width: 150,
-            marginVertical: 20
+            marginVertical: 5
         }
     }
 };
@@ -103,8 +110,8 @@ export const getHeaderTheme = themeName => {
         },
         headerText: {
             color: lightTheme.headerText ,
-            fontSize: 20,
-            fontWeight: "bold" 
+            fontFamily: 'YesevaOne',
+            fontSize: 25
         },
         headerButtons: {
             color: lightTheme.headerText
@@ -118,8 +125,8 @@ export const getHeaderTheme = themeName => {
         },
         headerText: {
             color: darkTheme.headerText ,
-            fontSize: 20,
-            fontWeight: "bold" 
+            fontFamily: 'YesevaOne',
+            fontSize: 25
         },
         headerButtons: {
             color: darkTheme.headerText
@@ -133,8 +140,8 @@ export const getHeaderTheme = themeName => {
         },
         headerText: {
             color: colorfullTheme.headerText ,
-            fontSize: 20,
-            fontWeight: "bold" 
+            fontSize: 25,
+            fontFamily: 'YesevaOne'
         },
         headerButtons: {
             color: colorfullTheme.headerText
@@ -164,15 +171,18 @@ export const getFeedTheme = themeName => {
         },
         src:{
             fontSize: 10,
+            fontFamily: 'Roboto-Light',
+            color: lightTheme.feedText,
             marginRight: 20,
         },
         title:{
-            fontWeight: "bold",
-            fontSize: 16,
+            fontSize: 18,
+            fontFamily: 'YesevaOne',
             color: lightTheme.feedText
         },
         description: {
-            fontSize: 12,
+            fontSize: 16,
+            fontFamily: 'Roboto-Light',
             color: lightTheme.feedText
         },
         feedBackground: {flex: 1, alignItems: "center", justifyContent:"center", backgroundColor: lightTheme.feedBG}
@@ -198,15 +208,18 @@ export const getFeedTheme = themeName => {
         },
         src:{
             fontSize: 10,
+            fontFamily: 'Roboto-Light',
+            color: darkTheme.feedText,
             marginRight: 20,
         },
         title:{
-            fontWeight: "bold",
-            fontSize: 16,
+            fontSize: 18,
+            fontFamily: 'YesevaOne',
             color: darkTheme.feedText
         },
         description: {
-            fontSize: 12,
+            fontSize: 16,
+            fontFamily: 'Roboto-Light',
             color: darkTheme.feedText
         },
         feedBackground: {flex: 1, alignItems: "center", justifyContent:"center", backgroundColor: darkTheme.feedBG}
@@ -232,17 +245,25 @@ export const getFeedTheme = themeName => {
         },
         src:{
             fontSize: 10,
+            fontFamily: 'Roboto-Light',
+            color: colorfullTheme.feedText,
             marginRight: 20,
         },
         title:{
-            fontWeight: "bold",
-            fontSize: 16,
+            fontSize: 18,
+            fontFamily: 'YesevaOne',
             color: colorfullTheme.feedText
         },
         description: {
-            fontSize: 12,
+            fontSize: 16,
+            fontFamily: 'Roboto-Light',
             color: colorfullTheme.feedText
         },
-        feedBackground: {flex: 1, alignItems: "center", justifyContent:"center", backgroundColor: colorfullTheme.feedBG}
+        feedBackground: {
+            flex: 1, 
+            alignItems: "center",
+            justifyContent:"center", 
+            backgroundColor: colorfullTheme.feedBG
+        }
     };
 };

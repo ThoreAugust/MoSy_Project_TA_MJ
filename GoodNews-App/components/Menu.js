@@ -9,7 +9,7 @@ import {Ionicons} from '@expo/vector-icons'
 
 export default function Menu(props) {
   const theme = getSidebarTheme(props.theme);
-  const categories = ['politik', 'gesellschaft', 'wirtschaft', 'freizeit & kultur', 'technologie'];
+  const categories = ['wirtschaft', 'unterhaltung','gesundheit', 'wissenschaft','sport' , 'technologie', 'lokal'];
   const changeTheme = type => {
     console.log(type);
   }
@@ -17,13 +17,13 @@ export default function Menu(props) {
     <View style={theme.sidebarContainer}>
       <View style={theme.sidebarDrawer}>
         <View style={{height: "10%", marginTop: 25}}>
-          <TouchableOpacity><Text style={theme.sidebarText}>start</Text></TouchableOpacity>
+          <TouchableOpacity onPress={()=> props.newsHandler('allgemein')}><Text style={theme.sidebarText}>start</Text></TouchableOpacity>
           <Divider style={theme.sidebarDivider} />
         </View>
         
           <FlatList 
           data={categories}
-          renderItem={(itemData ) => {return (<TouchableOpacity><Text style={theme.sidebarText}>{itemData.item}</Text></TouchableOpacity>)}}
+          renderItem={(itemData ) => {return (<TouchableOpacity onPress={()=> props.newsHandler(itemData.item)}><Text style={theme.sidebarText}>{itemData.item}</Text></TouchableOpacity>)}}
           keyExtractor={(item, index) => item + index}
           style={{height: "80%"}}
           />

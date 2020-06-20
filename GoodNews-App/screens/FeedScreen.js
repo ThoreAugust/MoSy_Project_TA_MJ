@@ -1,5 +1,5 @@
 import React, {useContext, useState, useEffect} from "react";
-import {View, FlatList, Alert, StyleSheet} from 'react-native';
+import {View, FlatList, Alert, Text} from 'react-native';
 import {Header, Button} from 'react-native-elements';
 import FeedTile from "../components/FeedTile";
 import Menu from '../components/Menu';
@@ -7,79 +7,160 @@ import SideMenu from 'react-native-side-menu';
 import ArticleScreen from './ArticleScreen';
 import {Ionicons} from '@expo/vector-icons';
 import {getFeedTheme, getHeaderTheme} from '../constants/Themes';
+import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions';
 
 export default MainScreen = ({navigation}) => {
     const [articles, setArticles] = useState([]);
-    const [searchText, setSearchText] = useState("hamburg");
+    const [searchText, setSearchText] = useState("allgemein");
     const [isArticle, setIsArticle] = useState({visible: false, url: "", title: ""});
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [themeType, setThemeType] = useState('colorfull');
+    const [initialLoading, setInitialLoading] = useState(true);
+    const [checkForGoodNews, setCheckForGoodNews] = useState(false);
 
     const feedTheme = getFeedTheme(themeType);
     const headerTheme = getHeaderTheme(themeType);
-    
-    const getNews = async () => {
+    const NEWS_APIKEY = "e4d9bf0010d34a979ba7a96932e3b01e";
+
+    // TODO: show that articles are loading , close drawer on category selection
+    const getCategoryNews = async (category) => {
         let articleId = 0;
-        const NEWS_APIKEY = "e4d9bf0010d34a979ba7a96932e3b01e";
-        var url = `http://newsapi.org/v2/everything?q=${searchText}&language=de&sortBy=relevancy&pageSize=100&apiKey=${NEWS_APIKEY}`;
-
-        try {
-            let response = await fetch(new Request(url));
-            response = await response.json();
-            response.articles.forEach(element => {
-                if (element !== undefined) {
-                    element.id = 'a' + articleId;
-                    articleId++;   
-                }
-            });
-            setArticles(response.articles);
-            
-        } catch (error) {
-            Alert.alert("Something went wrong!", error.message, [{title: "Ok"}] );
-        }
-    };
-
-    const getGoodNews = async () =>{
-        let goodArticles = [];
-        var index, len;
-        try{
-            for (index = 0, len = articles.length; index < len; ++index) {
-
-                let response = await fetch("https://text-sentiment.p.rapidapi.com/analyze", {
-                    "method": "POST",
-                    "headers": {
-                        "x-rapidapi-host": "text-sentiment.p.rapidapi.com",
-                        "x-rapidapi-key": "8d70e32e62msha8e73dfa263e74bp161ae2jsna6e3d797e585",
-                        "content-type": "application/x-www-form-urlencoded"
-                    },
-                    "body": {
-                        "text": articles[index].description
+        let response;
+        var url = `http://newsapi.org/v2/top-headlines?category=${category}&country=de&pageSize=100&apiKey=${NEWS_APIKEY}`;
+        if (category === 'local') {
+            response = await getLocalNews();
+            return response;
+        }else{
+            try {
+                response = await fetch(new Request(url));
+                response = await response.json();
+                response.articles.forEach(element => {
+                    if (element !== undefined) {
+                        element.id = 'a' + articleId;
+                        articleId++;   
                     }
                 });
-                response = await response.json();
-                let pos_percent = parseInt(response.pos_percent);
-                let mid_percent = parseInt(response.mid_percent);
-                let neg_percent = parseInt(response.neg_percent);
-                console.log('Pos ' + pos_percent + ',neg ' + neg_percent + ',mid ' + mid_percent);
-                if(neg_percent !== 0){
-                    if(pos_percent >= 50) {
-                        goodArticles.push(articles[index]);
-                    }
-                    if(mid_percent >= 75){
-                        goodArticles.push(articles[index]);
-                    }
-                } 
+                return response.articles;
+            } catch (error) {
+                Alert.alert("Something went wrong!", error.message, [{title: "Ok"}] );
             }
-            setArticles(goodArticles);
-            console.log(goodArticles);
-        }catch(error){
-            //Alert.alert("Something went wrong!", error.message, [{title: "Ok"}] );
+        }
+    }
+
+    const getLocalNews = async () =>{
+        const locationName = await getLocationName();
+        let articleId = 0;
+        setSearchText(locationName.city);
+        var url = `https://newsapi.org/v2/everything?q=${locationName.city}&language=de&pageSize=100&apiKey=${NEWS_APIKEY}`;
+        try {
+                let response = await fetch(new Request(url));
+                response = await response.json();
+                response.articles.forEach(element => {
+                    if (element !== undefined) {
+                        element.id = 'a' + articleId;
+                        articleId++;   
+                    }
+                });
+                return response.articles;
+            } catch (error) {
+                Alert.alert("Something went wrong!", error.message, [{title: "Ok"}] );
+            }
+    };
+    
+    const getNews = async (type) => {
+        const categories = ['wirtschaft', 'unterhaltung','allgemein','gesundheit', 'wissenschaft','sport' , 'technologie', 'lokal'];
+        let engVersions = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology', 'local'];
+        let category = 'general';
+        for (let index = 0; index < categories.length; index++) {
+            if (categories[index] === type) {
+                category = engVersions[index];
+                setSearchText(categories[index]);
+            }
+        }
+        let allArticles = await getCategoryNews(category);
+        let goodArticles = await getGoodNews(allArticles);
+
+        setArticles(goodArticles);
+    };
+    
+    const getSentiment = async (url, options) => {
+        try {
+            let response = await fetch(url, options)
+            response = await response.text();
+            return response;          
+        } catch (error) {
+                    
+        }
+    }
+    
+    const getGoodNews = async (allArticles) =>{
+        var subscription_key = "852f4884e878444097e5ea038c0e9540";
+        var endpoint = "https://goodnewsapp.cognitiveservices.azure.com";
+        var path = "/text/analytics/v2.1/sentiment";
+        var myHeaders = new Headers();
+        myHeaders.append("Ocp-Apim-Subscription-Key", subscription_key);
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Accept", "application/json");
+        let body = {"documents" : []};
+        let articlesToCheck = [];
+
+        for (let index = 0; index < allArticles.length; index++) {
+            const element = {"id" : `${index}`, "language": "de","text" : `${allArticles[index].description}`};
+            articlesToCheck.push(element);            
+        }
+
+        body.documents = articlesToCheck;
+
+        var raw = JSON.stringify(body);
+        var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+        };
+
+        let goodArticles = [];
+        let response = await getSentiment(endpoint+path, requestOptions);
+        response = JSON.parse(response);
+        response.documents.forEach(item => {
+            console.log(`id : ${item.id}, score: ${item.score}`);
+            if (item.score > 0.65) {
+                console.log(allArticles[parseInt(item.id)]);
+                goodArticles.push(allArticles[parseInt(item.id)]);
+            }
+        });
+        setCheckForGoodNews(false);
+        return goodArticles;
+    };
+
+    const getLocationName = async () => {
+        const hasPermissions = getPermissions();
+
+        if (!hasPermissions) {
+            return;
+        }else{
+            try {
+                const position = await Location.getCurrentPositionAsync({timeout: 5000});
+                const location = {latitude: position.coords.latitude, longitude: position.coords.longitude};
+                //console.log(location.latitude, location.longitude);
+                const town = await Location.reverseGeocodeAsync(location);
+                return town[0];
+            } catch (error) {
+                Alert.alert("Could not get location!", "Please try again later.", [{title: "Ok"}] );
+            }
         }
     };
 
-    useEffect(()=>{
-        getNews();//.then(getGoodNews())
-      },[]);
+    const getPermissions = async () => {
+        const result = await Permissions.askAsync(Permissions.LOCATION);
+        if (!result.granted) {
+            Alert.alert("No Permissions!", "Please give location permissions to use this app.", [{title: "Ok"}])
+            return false;
+        }else{
+            return true;
+        }
+    };
 
     const toArticle = (url, title) =>{
         let currentArticle = {visible: true, url: url, title: title};
@@ -100,7 +181,20 @@ export default MainScreen = ({navigation}) => {
         setThemeType(type);
     };
 
-    const menu = <Menu theme={themeType} changeTheme={setTheme}/>;
+    useEffect(() => {
+        if (initialLoading) {
+            getNews('allgemein');
+            setInitialLoading(false);
+        }
+    },[]);
+
+    // useEffect(() => {
+    //     if (checkForGoodNews) {
+    //         getGoodNews();
+    //     }
+    // },[articles]);
+
+    const menu = <Menu theme={themeType} changeTheme={setTheme} newsHandler={getNews}/>;
         return (
             <SideMenu menu={menu} disableGestures={true} isOpen={isMenuOpen}>
                 <Header 
@@ -110,6 +204,9 @@ export default MainScreen = ({navigation}) => {
                     containerStyle={headerTheme.header}
                 />
                 <View style={feedTheme.feedBackground}>  
+                    <View style={{backgroundColor: headerTheme.header.backgroundColor, width: '100%', alignItems: "center"}}>
+                        <Text style={{color:headerTheme.headerText.color, fontFamily: headerTheme.headerText.fontFamily, fontSize: 12}}>Wir haben {articles.length} Artikel zum Thema {searchText.toUpperCase()} gefunden </Text>
+                    </View>
                     <FlatList 
                         data={articles}
                         renderItem={(itemData ) => {return <FeedTile title={itemData.item.title} description={itemData.item.description} image={itemData.item.urlToImage} source={itemData.item.source.name} toArticle={toArticle} articleUrl={itemData.item.url} theme={themeType} />}}
