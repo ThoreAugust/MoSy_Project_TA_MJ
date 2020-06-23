@@ -17,13 +17,12 @@ export default MainScreen = ({navigation}) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [themeType, setThemeType] = useState('colorfull');
     const [initialLoading, setInitialLoading] = useState(true);
-    const [checkForGoodNews, setCheckForGoodNews] = useState(false);
 
     const feedTheme = getFeedTheme(themeType);
     const headerTheme = getHeaderTheme(themeType);
     const NEWS_APIKEY = "e4d9bf0010d34a979ba7a96932e3b01e";
 
-    // TODO: show that articles are loading , close drawer on category selection
+    // TODO: show that articles are loading, show newsdate, keyword search
     const getCategoryNews = async (category) => {
         let articleId = 0;
         let response;
@@ -69,6 +68,8 @@ export default MainScreen = ({navigation}) => {
     };
     
     const getNews = async (type) => {
+        if(isMenuOpen) setIsMenuOpen(false);
+
         const categories = ['wirtschaft', 'unterhaltung','allgemein','gesundheit', 'wissenschaft','sport' , 'technologie', 'lokal'];
         let engVersions = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology', 'local'];
         let category = 'general';
@@ -124,13 +125,11 @@ export default MainScreen = ({navigation}) => {
         let response = await getSentiment(endpoint+path, requestOptions);
         response = JSON.parse(response);
         response.documents.forEach(item => {
-            console.log(`id : ${item.id}, score: ${item.score}`);
             if (item.score > 0.65) {
-                console.log(allArticles[parseInt(item.id)]);
                 goodArticles.push(allArticles[parseInt(item.id)]);
             }
         });
-        setCheckForGoodNews(false);
+
         return goodArticles;
     };
 
@@ -143,7 +142,6 @@ export default MainScreen = ({navigation}) => {
             try {
                 const position = await Location.getCurrentPositionAsync({timeout: 5000});
                 const location = {latitude: position.coords.latitude, longitude: position.coords.longitude};
-                //console.log(location.latitude, location.longitude);
                 const town = await Location.reverseGeocodeAsync(location);
                 return town[0];
             } catch (error) {
@@ -177,7 +175,6 @@ export default MainScreen = ({navigation}) => {
     }
     
     const setTheme = type => {
-        console.log(type);
         setThemeType(type);
     };
 
@@ -187,12 +184,6 @@ export default MainScreen = ({navigation}) => {
             setInitialLoading(false);
         }
     },[]);
-
-    // useEffect(() => {
-    //     if (checkForGoodNews) {
-    //         getGoodNews();
-    //     }
-    // },[articles]);
 
     const menu = <Menu theme={themeType} changeTheme={setTheme} newsHandler={getNews}/>;
         return (

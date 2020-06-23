@@ -10,9 +10,7 @@ import {Ionicons} from '@expo/vector-icons'
 export default function Menu(props) {
   const theme = getSidebarTheme(props.theme);
   const categories = ['wirtschaft', 'unterhaltung','gesundheit', 'wissenschaft','sport' , 'technologie', 'lokal'];
-  const changeTheme = type => {
-    console.log(type);
-  }
+
   return (
     <View style={theme.sidebarContainer}>
       <View style={theme.sidebarDrawer}>
