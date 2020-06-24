@@ -1,6 +1,6 @@
-import React, {useContext, useState, useEffect} from "react";
-import {View, FlatList, Alert, Text} from 'react-native';
-import {Header, Button} from 'react-native-elements';
+import React, {useState, useEffect} from "react";
+import {View, FlatList, Alert, Text, ActivityIndicator, Keyboard} from 'react-native';
+import {Header, Button, Input} from 'react-native-elements';
 import FeedTile from "../components/FeedTile";
 import Menu from '../components/Menu';
 import SideMenu from 'react-native-side-menu';
@@ -17,12 +17,15 @@ export default MainScreen = ({navigation}) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [themeType, setThemeType] = useState('colorfull');
     const [initialLoading, setInitialLoading] = useState(true);
+    const [loadingArticles, setLoadingArticles] = useState(false);
+    const [searchBarFocused, setSearchBarFocused] = useState(false);
+    const [searchWord, setSearchWord] = useState('');
 
     const feedTheme = getFeedTheme(themeType);
     const headerTheme = getHeaderTheme(themeType);
     const NEWS_APIKEY = "e4d9bf0010d34a979ba7a96932e3b01e";
 
-    // TODO: show that articles are loading, show newsdate, keyword search
+    // TODO: keyword search
     const getCategoryNews = async (category) => {
         let articleId = 0;
         let response;
@@ -69,6 +72,7 @@ export default MainScreen = ({navigation}) => {
     
     const getNews = async (type) => {
         if(isMenuOpen) setIsMenuOpen(false);
+        setLoadingArticles(true);
 
         const categories = ['wirtschaft', 'unterhaltung','allgemein','gesundheit', 'wissenschaft','sport' , 'technologie', 'lokal'];
         let engVersions = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology', 'local'];
@@ -83,6 +87,31 @@ export default MainScreen = ({navigation}) => {
         let goodArticles = await getGoodNews(allArticles);
 
         setArticles(goodArticles);
+        setLoadingArticles(false);
+    };
+
+    const getKeyWordNews = async () =>{
+        setLoadingArticles(true);
+        let articleId = 0;
+        let allArticles = []
+        setSearchText(searchWord);
+        var url = `https://newsapi.org/v2/everything?q=${searchWord}&language=de&pageSize=100&apiKey=${NEWS_APIKEY}`;
+        try {
+                let response = await fetch(new Request(url));
+                response = await response.json();
+                response.articles.forEach(element => {
+                    if (element !== undefined) {
+                        element.id = 'a' + articleId;
+                        articleId++;   
+                    }
+                });
+                allArticles = response.articles;
+            } catch (error) {
+                Alert.alert("Something went wrong!", error.message, [{title: "Ok"}] );
+            }
+            let goodArticles = await getGoodNews(allArticles);
+            setArticles(goodArticles);
+            setLoadingArticles(false);
     };
     
     const getSentiment = async (url, options) => {
@@ -124,10 +153,14 @@ export default MainScreen = ({navigation}) => {
         let goodArticles = [];
         let response = await getSentiment(endpoint+path, requestOptions);
         response = JSON.parse(response);
+        console.log(response);
         response.documents.forEach(item => {
-            if (item.score > 0.65) {
-                goodArticles.push(allArticles[parseInt(item.id)]);
+            if (item !== undefined) {
+                if (item.score > 0.65) {
+                    goodArticles.push(allArticles[parseInt(item.id)]);
+                }
             }
+            
         });
 
         return goodArticles;
@@ -178,6 +211,14 @@ export default MainScreen = ({navigation}) => {
         setThemeType(type);
     };
 
+    const handleSearchBar = () => {
+        if (searchBarFocused) {
+            Keyboard.dismiss();
+            getKeyWordNews();
+        }
+        setSearchBarFocused(prev => !prev);
+    };
+
     useEffect(() => {
         if (initialLoading) {
             getNews('allgemein');
@@ -186,25 +227,31 @@ export default MainScreen = ({navigation}) => {
     },[]);
 
     const menu = <Menu theme={themeType} changeTheme={setTheme} newsHandler={getNews}/>;
+    const title = <Text style={headerTheme.headerText}>Good News App</Text>;
+    const searchBar = <Input onChangeText={text => setSearchWord(text)} onSubmitEditing={handleSearchBar} blurOnSubmit={true} autoFocus={true}/>;
         return (
             <SideMenu menu={menu} disableGestures={true} isOpen={isMenuOpen}>
                 <Header 
-                    leftComponent={<Button type="clear" icon={ <Ionicons name="md-menu" size={32} color={headerTheme.headerButtons.color} />} onPress={toggleMenu}/>}
-                    centerComponent={{ text: 'Good News App', style: headerTheme.headerText }}
-                    rightComponent={<Button type="clear" icon={ <Ionicons name="md-search" size={32} color={headerTheme.headerButtons.color} />} />}
+                    leftComponent={<Button type="clear" icon={ <Ionicons name="md-menu" size={32} color={headerTheme.headerButtons.color} />} onPress={toggleMenu} />}
+                    centerComponent={searchBarFocused ? searchBar : title}
+                    rightComponent={<Button type="clear" icon={ <Ionicons name="md-search" size={32} color={headerTheme.headerButtons.color} />} onPress={handleSearchBar}/>}
                     containerStyle={headerTheme.header}
                 />
                 <View style={feedTheme.feedBackground}>  
                     <View style={{backgroundColor: headerTheme.header.backgroundColor, width: '100%', alignItems: "center"}}>
                         <Text style={{color:headerTheme.headerText.color, fontFamily: headerTheme.headerText.fontFamily, fontSize: 12}}>Wir haben {articles.length} Artikel zum Thema {searchText.toUpperCase()} gefunden </Text>
                     </View>
-                    <FlatList 
+                    {loadingArticles ? ( <View style={feedTheme.feedBackground}>
+                        <ActivityIndicator size="large" color={feedTheme.title.color}/>
+                    </View> ):
+                    (<FlatList 
                         data={articles}
-                        renderItem={(itemData ) => {return <FeedTile title={itemData.item.title} description={itemData.item.description} image={itemData.item.urlToImage} source={itemData.item.source.name} toArticle={toArticle} articleUrl={itemData.item.url} theme={themeType} />}}
+                        renderItem={(itemData ) => {return <FeedTile title={itemData.item.title} description={itemData.item.description} image={itemData.item.urlToImage} source={itemData.item.source.name} toArticle={toArticle} articleUrl={itemData.item.url} theme={themeType} date={itemData.item.publishedAt}/>}}
                         keyExtractor={(item, index) => item.id}
                         style={{width:'100%'}}
                         contentContainerStyle={{alignItems: "stretch"}}
-                        />     
+                        />)}
+                         
                     <ArticleScreen visible={isArticle.visible} url={isArticle.url} title={isArticle.title} goBack={goBack} theme={themeType} />    
                 </View>
             </SideMenu>
