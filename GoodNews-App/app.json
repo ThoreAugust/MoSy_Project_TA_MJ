@@ -21,7 +21,14 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
-    }
+      "supportsTablet": true,
+      "bundleIdentifier": "de.goodnews.app",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "package": "de.goodnews.app",
+      "versionCode": 1
+    },
+    "description": ""
   }
 }

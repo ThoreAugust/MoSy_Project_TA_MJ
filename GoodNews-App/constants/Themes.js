@@ -104,7 +104,7 @@ export const getSidebarTheme = themeName => {
 export const getHeaderTheme = themeName => {
     if (themeName === 'light') return{
         header: {
-            height: 60,
+            height: 80,
             paddingBottom: 20,
             backgroundColor: lightTheme.headerBG
         },
@@ -119,7 +119,7 @@ export const getHeaderTheme = themeName => {
     }
     if(themeName === 'dark') return{
         header: {
-            height: 60,
+            height: 80,
             paddingBottom: 20,
             backgroundColor: darkTheme.headerBG
         },
@@ -134,7 +134,7 @@ export const getHeaderTheme = themeName => {
     }
     return{
         header: {
-            height: 60,
+            height: 80,
             paddingBottom: 20,
             backgroundColor: colorfullTheme.headerBG
         },

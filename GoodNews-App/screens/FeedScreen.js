@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import {View, FlatList, Alert, Text, ActivityIndicator, Keyboard} from 'react-native';
+import {View, FlatList, Alert, Text, ActivityIndicator, Keyboard, Platform} from 'react-native';
 import {Header, Button, Input} from 'react-native-elements';
 import FeedTile from "../components/FeedTile";
 import Menu from '../components/Menu';
@@ -106,11 +106,11 @@ export default MainScreen = ({navigation}) => {
                     }
                 });
                 allArticles = response.articles;
+                let goodArticles = await getGoodNews(allArticles);
+                setArticles(goodArticles);
             } catch (error) {
                 Alert.alert("Something went wrong!", error.message, [{title: "Ok"}] );
             }
-            let goodArticles = await getGoodNews(allArticles);
-            setArticles(goodArticles);
             setLoadingArticles(false);
     };
     
@@ -151,18 +151,27 @@ export default MainScreen = ({navigation}) => {
         };
 
         let goodArticles = [];
-        let response = await getSentiment(endpoint+path, requestOptions);
-        response = JSON.parse(response);
-        console.log(response);
-        response.documents.forEach(item => {
-            if (item !== undefined) {
-                if (item.score > 0.65) {
-                    goodArticles.push(allArticles[parseInt(item.id)]);
-                }
+        try {   
+            let response = await getSentiment(endpoint+path, requestOptions);
+            response = JSON.parse(response);
+            console.log(response);
+            if (response.error.code !== "403") {
+                
+                response.documents.forEach(item => {
+                    if (item !== undefined) {
+                        if (item.score > 0.65) {
+                            goodArticles.push(allArticles[parseInt(item.id)]);
+                        }
+                    }
+                    
+                });
+            }else{
+                Alert.alert("Something went wrong!", response.error.message, [{title: "Ok"}] ); 
             }
-            
-        });
-
+        } catch (error) {
+            Alert.alert("Something went wrong!", error.message, [{title: "Ok"}] );
+        }
+        
         return goodArticles;
     };
 
@@ -232,13 +241,13 @@ export default MainScreen = ({navigation}) => {
         return (
             <SideMenu menu={menu} disableGestures={true} isOpen={isMenuOpen}>
                 <Header 
-                    leftComponent={<Button type="clear" icon={ <Ionicons name="md-menu" size={32} color={headerTheme.headerButtons.color} />} onPress={toggleMenu} />}
+                    leftComponent={<Button type="clear" icon={ <Ionicons name={Platform.OS === 'ios' ? "ios-menu":"md-menu"} size={32} color={headerTheme.headerButtons.color} />} onPress={toggleMenu} />}
                     centerComponent={searchBarFocused ? searchBar : title}
-                    rightComponent={<Button type="clear" icon={ <Ionicons name="md-search" size={32} color={headerTheme.headerButtons.color} />} onPress={handleSearchBar}/>}
+                    rightComponent={<Button type="clear" icon={ <Ionicons name={Platform.OS === 'ios' ? "ios-search":"md-search"} size={32} color={headerTheme.headerButtons.color} />} onPress={handleSearchBar}/>}
                     containerStyle={headerTheme.header}
                 />
                 <View style={feedTheme.feedBackground}>  
-                    <View style={{backgroundColor: headerTheme.header.backgroundColor, width: '100%', alignItems: "center"}}>
+                    <View style={{backgroundColor: headerTheme.header.backgroundColor, width: '100%', padding: 10, alignItems: "center"}}>
                         <Text style={{color:headerTheme.headerText.color, fontFamily: headerTheme.headerText.fontFamily, fontSize: 12}}>Wir haben {articles.length} Artikel zum Thema {searchText.toUpperCase()} gefunden </Text>
                     </View>
                     {loadingArticles ? ( <View style={feedTheme.feedBackground}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Modal} from 'react-native';
+import {Modal, Platform} from 'react-native';
 import {Header, Button, ThemeConsumer} from 'react-native-elements';
 import {WebView} from 'react-native-webview';
 import {Ionicons} from '@expo/vector-icons';
@@ -11,7 +11,7 @@ export default ArticleScreen = props => {
     return (
         <Modal visible = {props.visible}>
             <Header 
-                leftComponent={<Button type="clear" icon={ <Ionicons name="md-arrow-back" size={32} color={theme.headerButtons.color} />} onPress={props.goBack}/>}
+                leftComponent={<Button type="clear" icon={ <Ionicons name={Platform.OS === 'ios' ? "ios-arrow-back":"md-arrow-back"} size={32} color={theme.headerButtons.color} />} onPress={props.goBack}/>}
                 centerComponent={{ text: props.title, style: theme.headerText }}
                 containerStyle={theme.header}
             />
