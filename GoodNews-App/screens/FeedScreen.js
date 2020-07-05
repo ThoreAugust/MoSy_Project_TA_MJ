@@ -154,9 +154,7 @@ export default MainScreen = ({navigation}) => {
         try {   
             let response = await getSentiment(endpoint+path, requestOptions);
             response = JSON.parse(response);
-            console.log(response);
-            if (response.error.code !== "403") {
-                
+            console.log(response);                
                 response.documents.forEach(item => {
                     if (item !== undefined) {
                         if (item.score > 0.65) {
@@ -165,9 +163,6 @@ export default MainScreen = ({navigation}) => {
                     }
                     
                 });
-            }else{
-                Alert.alert("Something went wrong!", response.error.message, [{title: "Ok"}] ); 
-            }
         } catch (error) {
             Alert.alert("Something went wrong!", error.message, [{title: "Ok"}] );
         }
