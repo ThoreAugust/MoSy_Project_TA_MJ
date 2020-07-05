@@ -25,7 +25,6 @@ export default MainScreen = ({navigation}) => {
     const headerTheme = getHeaderTheme(themeType);
     const NEWS_APIKEY = "e4d9bf0010d34a979ba7a96932e3b01e";
 
-    // TODO: keyword search
     const getCategoryNews = async (category) => {
         let articleId = 0;
         let response;
@@ -261,4 +260,3 @@ export default MainScreen = ({navigation}) => {
             </SideMenu>
         );
 };
-
