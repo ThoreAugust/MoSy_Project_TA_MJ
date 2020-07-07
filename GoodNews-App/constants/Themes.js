@@ -1,3 +1,4 @@
+//Farben für das helle Theme
 const lightTheme = {
     headerBG : '#DDE9E8',
     sidebarBG: '#ECB6AD',
@@ -6,6 +7,7 @@ const lightTheme = {
     sidebarText: '#F7F7F7',
     feedText: '#ECB6AD',
 };
+//Farben für das dunkle Theme
 const darkTheme = {
     headerBG : '#D6CCC2',
     sidebarBG: '#D6CCC2',
@@ -14,6 +16,7 @@ const darkTheme = {
     sidebarText: '#222328',
     feedText: '#D6CCC2',
 };
+//Farben für das farbige Theme
 const colorfullTheme = {
     headerBG : '#F7F3C2',
     sidebarBG: '#102042',
@@ -22,7 +25,7 @@ const colorfullTheme = {
     sidebarText: '#F7F3C2',
     feedText: '#102042',
 };
-
+//gibt das Styling für die Sidebar zurück
 export const getSidebarTheme = themeName => {
     if (themeName === 'light') return{
         sidebarContainer: {
@@ -100,7 +103,7 @@ export const getSidebarTheme = themeName => {
         }
     }
 };
-
+//gibt das Styling für den Header zurück
 export const getHeaderTheme = themeName => {
     if (themeName === 'light') return{
         header: {
@@ -148,7 +151,7 @@ export const getHeaderTheme = themeName => {
         }
     }
 };
-
+//gibt das Styling für den Feed zurück
 export const getFeedTheme = themeName => {
     if (themeName === 'light') return{
         itemContainer : {

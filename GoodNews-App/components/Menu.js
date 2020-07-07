@@ -8,8 +8,8 @@ import {Ionicons} from '@expo/vector-icons'
 
 
 export default function Menu(props) {
-  const theme = getSidebarTheme(props.theme);
-  const categories = ['wirtschaft', 'unterhaltung','gesundheit', 'wissenschaft','sport' , 'technologie', 'lokal'];
+  const theme = getSidebarTheme(props.theme); //holt das Styling für die Sidebar
+  const categories = ['wirtschaft', 'unterhaltung','gesundheit', 'wissenschaft','sport' , 'technologie', 'lokal']; //alle Kategorien die ausgewählt werden können
 
   return (
     <View style={theme.sidebarContainer}>

@@ -6,7 +6,7 @@ import {Ionicons} from '@expo/vector-icons';
 import { getHeaderTheme } from '../constants/Themes';
 
 export default ArticleScreen = props => {
-    const theme = getHeaderTheme(props.theme);
+    const theme = getHeaderTheme(props.theme); //holt das Styling für den header
     
     return (
         <Modal visible = {props.visible}>

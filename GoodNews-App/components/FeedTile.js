@@ -3,8 +3,9 @@ import {View, Image,Text, TouchableOpacity,StyleSheet} from 'react-native';
 import {getFeedTheme} from '../constants/Themes';
 
 export default FeedTile = props => {
-    const theme = getFeedTheme(props.theme);
-    const imageAvailable = props.image !== null;
+    const theme = getFeedTheme(props.theme); //holt das Styling für den Feed
+    const imageAvailable = props.image !== null; // gibt es ein Bild oder nicht
+    //formatiert das Datum für die Anzeige
     const date = new Date(props.date);
     const dateString = date.toLocaleDateString('de-DE') + " " + date.toLocaleTimeString('de-DE');
     return(

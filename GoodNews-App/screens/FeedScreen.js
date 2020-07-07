@@ -11,20 +11,21 @@ import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 
 export default MainScreen = ({navigation}) => {
-    const [articles, setArticles] = useState([]);
-    const [searchText, setSearchText] = useState("allgemein");
-    const [isArticle, setIsArticle] = useState({visible: false, url: "", title: ""});
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [themeType, setThemeType] = useState('colorfull');
-    const [initialLoading, setInitialLoading] = useState(true);
-    const [loadingArticles, setLoadingArticles] = useState(false);
-    const [searchBarFocused, setSearchBarFocused] = useState(false);
-    const [searchWord, setSearchWord] = useState('');
+    const [articles, setArticles] = useState([]); //anzuzeigende Artikel
+    const [searchText, setSearchText] = useState("allgemein"); // Wonach gesucht wurde (Kategorie oder Suchwort)
+    const [isArticle, setIsArticle] = useState({visible: false, url: "", title: ""}); // Artikel welcher im ArticleScreen angezeigt wird
+    const [isMenuOpen, setIsMenuOpen] = useState(false);    // ist das Menü offen oder nicht
+    const [themeType, setThemeType] = useState('colorfull'); // string welches theme genutzt werden soll
+    const [initialLoading, setInitialLoading] = useState(true); // wird die app das erste mal geöffnet
+    const [loadingArticles, setLoadingArticles] = useState(false); // wird gerade nach Artikeln gesucht
+    const [searchBarFocused, setSearchBarFocused] = useState(false); // ist im Header der Title oder die Suchleiste angezeigt
+    const [searchWord, setSearchWord] = useState(''); // input wonach gesucht wird
 
-    const feedTheme = getFeedTheme(themeType);
-    const headerTheme = getHeaderTheme(themeType);
-    const NEWS_APIKEY = "e4d9bf0010d34a979ba7a96932e3b01e";
+    const feedTheme = getFeedTheme(themeType); // holt das Styling für den Feed
+    const headerTheme = getHeaderTheme(themeType); // holt das Styling für den Header
+    const NEWS_APIKEY = "e4d9bf0010d34a979ba7a96932e3b01e"; // API-Key für newsapi.org
 
+    //holt die news für die ausgewählte Kategory
     const getCategoryNews = async (category) => {
         let articleId = 0;
         let response;
@@ -49,6 +50,7 @@ export default MainScreen = ({navigation}) => {
         }
     }
 
+    //holt die News für den Ort an dem sich der Nutzer befindet
     const getLocalNews = async () =>{
         const locationName = await getLocationName();
         let articleId = 0;
@@ -69,6 +71,7 @@ export default MainScreen = ({navigation}) => {
             }
     };
     
+    //holt News nach Kategorie oder Location und Filtert diese
     const getNews = async (type) => {
         if(isMenuOpen) setIsMenuOpen(false);
         setLoadingArticles(true);
@@ -89,6 +92,7 @@ export default MainScreen = ({navigation}) => {
         setLoadingArticles(false);
     };
 
+    //holt News für das eingegebene Suchwort
     const getKeyWordNews = async () =>{
         setLoadingArticles(true);
         let articleId = 0;
@@ -113,6 +117,7 @@ export default MainScreen = ({navigation}) => {
             setLoadingArticles(false);
     };
     
+    //holt sich die Analyse für die Artikel
     const getSentiment = async (url, options) => {
         try {
             let response = await fetch(url, options)
@@ -123,6 +128,7 @@ export default MainScreen = ({navigation}) => {
         }
     }
     
+    //filtert die guten News
     const getGoodNews = async (allArticles) =>{
         var subscription_key = "852f4884e878444097e5ea038c0e9540";
         var endpoint = "https://goodnewsapp.cognitiveservices.azure.com";
@@ -169,6 +175,7 @@ export default MainScreen = ({navigation}) => {
         return goodArticles;
     };
 
+    //holt sich den Ort des Nutzers
     const getLocationName = async () => {
         const hasPermissions = getPermissions();
 
@@ -186,6 +193,7 @@ export default MainScreen = ({navigation}) => {
         }
     };
 
+    // holt sich die Permissiions des Nutzer für die Location
     const getPermissions = async () => {
         const result = await Permissions.askAsync(Permissions.LOCATION);
         if (!result.granted) {
@@ -196,24 +204,30 @@ export default MainScreen = ({navigation}) => {
         }
     };
 
+    //navigiert zum ArticleScreen mit dem ausgewählten Artikel
     const toArticle = (url, title) =>{
         let currentArticle = {visible: true, url: url, title: title};
         setIsArticle(currentArticle);
     };
 
+    //setzt den Artikel zurück und geht zurück zum FeedScreen
     const goBack = () =>{
         let defaultArticle = {visible: false, url:"", title: ""};
         setIsArticle(defaultArticle);
     }
 
+    //öffnet oder schließt das Menü
     const toggleMenu = () =>{
         setIsMenuOpen(isOpen => !isOpen);
     }
     
+    //setzt das Theme
     const setTheme = type => {
         setThemeType(type);
     };
 
+    //bei geschlossener Suchleiste öffnet diese 
+    //bei geöffneter Suchleiste initiert die Suche
     const handleSearchBar = () => {
         if (searchBarFocused) {
             Keyboard.dismiss();
@@ -222,6 +236,7 @@ export default MainScreen = ({navigation}) => {
         setSearchBarFocused(prev => !prev);
     };
 
+    //lädt News beim öffnen der App
     useEffect(() => {
         if (initialLoading) {
             getNews('allgemein');

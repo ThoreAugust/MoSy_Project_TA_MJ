@@ -9,6 +9,7 @@ export default function App() {
         'YesevaOne' : require('./assets/fonts/YesevaOne-Regular.ttf'),  
       });
     
+    //lädt die Fonts und dann den FeedScreen
     if(!fontsLoaded){
       return <AppLoading />;
     }else{
